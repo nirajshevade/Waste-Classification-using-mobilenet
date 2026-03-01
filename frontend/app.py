@@ -3,7 +3,6 @@ Streamlit Frontend for Waste Classification
 Real-time waste classification with webcam and file upload support
 """
 import streamlit as st
-import cv2
 import numpy as np
 import requests
 import base64
