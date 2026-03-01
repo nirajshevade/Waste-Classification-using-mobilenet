@@ -219,13 +219,25 @@ def load_local_model():
     for tflite_path in [TFLITE_MODEL_PATH, TFLITE_DYNAMIC_PATH]:
         if tflite_path.exists():
             try:
-                # Try tflite-runtime first (lightweight), fallback to full tensorflow
+                # Try lightweight runtimes first, fallback to full tensorflow
+                interpreter = None
                 try:
                     from tflite_runtime.interpreter import Interpreter
                     interpreter = Interpreter(model_path=str(tflite_path))
                 except ImportError:
+                    pass
+                
+                if interpreter is None:
+                    try:
+                        from ai_edge_litert.interpreter import Interpreter
+                        interpreter = Interpreter(model_path=str(tflite_path))
+                    except ImportError:
+                        pass
+                
+                if interpreter is None:
                     import tensorflow as tf
                     interpreter = tf.lite.Interpreter(model_path=str(tflite_path))
+                
                 interpreter.allocate_tensors()
                 return interpreter, "tflite"
             except Exception as e:

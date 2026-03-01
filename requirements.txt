@@ -4,7 +4,12 @@
 # ==============================================================================
 # Core ML Libraries
 # ==============================================================================
-tensorflow>=2.15.0
+# TFLite Runtime - lightweight inference engine for Streamlit Cloud deployment
+# (Only ~5MB vs ~500MB for full TensorFlow)
+tflite-runtime>=2.14.0; python_version<"3.12"
+ai-edge-litert>=1.0.1; python_version>="3.12"
+# Full TensorFlow (optional - needed only for training, not inference)
+# tensorflow>=2.15.0
 numpy
 pandas>=2.0.0
 scikit-learn>=1.3.0

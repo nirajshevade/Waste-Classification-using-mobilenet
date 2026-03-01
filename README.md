@@ -18,19 +18,22 @@
 
 ## 🌟 Overview
 
-A comprehensive AI-powered waste classification system designed for smart city and sustainability applications. The system captures live camera input or uploaded images, performs real-time preprocessing, and classifies waste into 7 categories with confidence scores.
+A comprehensive AI-powered waste classification system designed for smart city and sustainability applications. The system captures live camera input or uploaded images, performs real-time preprocessing, and classifies waste into 10 categories with confidence scores.
 
 ### 🎯 Waste Categories
 
 | Category | Emoji | Description |
 |----------|-------|-------------|
+| Battery | 🔋 | Batteries and electronic waste |
+| Biological | 🌱 | Food waste, yard waste, compostables |
+| Cardboard | 📦 | Cardboard boxes, packaging |
+| Clothes | 👕 | Clothing, fabric, textiles |
 | Glass | 🍾 | Bottles, jars, glass containers |
 | Metal | 🥫 | Cans, foil, metal containers |
-| Organic | 🌱 | Food waste, yard waste, compostables |
-| Paper | 📄 | Newspapers, cardboard, paper products |
+| Paper | 📄 | Newspapers, paper products |
 | Plastic | 🥤 | Bottles, containers, plastic packaging |
-| Recyclable | ♻️ | Mixed recyclable materials |
-| Non-recyclable | 🗑️ | General waste, non-recyclable items |
+| Shoes | 👟 | Footwear of all types |
+| Trash | 🗑️ | General waste, non-recyclable items |
 
 ---
 
@@ -111,7 +114,7 @@ Waste-Classification/
 
 ### Step 1: Clone the Repository
 ```bash
-git clone https://github.com/yourusername/Waste-Classification.git
+git clone https://github.com/nirajshevade/Waste-Classification-using-mobilenet.git
 cd Waste-Classification
 ```
 
@@ -161,7 +164,8 @@ streamlit run frontend/app.py --server.port 8501
 run_backend.bat
 
 # Or manually
-python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
+cd backend
+python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 **Frontend UI:**
@@ -188,13 +192,16 @@ streamlit run frontend/app.py --server.port 8501
 1. **Prepare Dataset**: Place your waste images in `data/raw/` organized by category:
    ```
    data/raw/
+   ├── battery/
+   ├── biological/
+   ├── cardboard/
+   ├── clothes/
    ├── glass/
    ├── metal/
-   ├── organic/
    ├── paper/
    ├── plastic/
-   ├── recyclable/
-   └── non-recyclable/
+   ├── shoes/
+   └── trash/
    ```
 
 2. **Run Training Notebook**: Open and execute `notebooks/waste_classification_training.ipynb`
@@ -247,13 +254,16 @@ X-API-Key: your-api-key
   "predictions": {
     "glass": 0.05,
     "metal": 0.02,
-    "organic": 0.85,
+    "biological": 0.85,
     "paper": 0.03,
     "plastic": 0.02,
-    "recyclable": 0.02,
-    "non-recyclable": 0.01
+    "battery": 0.01,
+    "cardboard": 0.01,
+    "clothes": 0.01,
+    "shoes": 0.01,
+    "trash": 0.01
   },
-  "top_prediction": "organic",
+  "top_prediction": "biological",
   "confidence": 0.85,
   "inference_time_ms": 45.2,
   "timestamp": "2024-01-15T10:30:00Z",
@@ -280,7 +290,7 @@ Dense(256, ReLU) + BatchNorm + Dropout(0.3)
     ↓
 Dense(128, ReLU) + BatchNorm + Dropout(0.3)
     ↓
-Dense(7, Softmax) → Output Classes
+Dense(10, Softmax) → Output Classes
 ```
 
 ### Training Configuration
@@ -290,7 +300,7 @@ Dense(7, Softmax) → Output Classes
 | Batch Size | 32 |
 | Optimizer | Adam |
 | Learning Rate | 0.001 (with decay) |
-| Epochs | 50 (early stopping) |
+| Epochs | 15 (early stopping, patience=5) |
 | Loss Function | Categorical Crossentropy |
 
 ---
