@@ -18,9 +18,10 @@ class ModelConfig:
     name: str = "WasteClassifier_MobileNetV2"
     version: str = "1.0.0"
     input_shape: tuple = (224, 224, 3)
-    num_classes: int = 7
+    num_classes: int = 10
     classes: List[str] = field(default_factory=lambda: [
-        "glass", "metal", "organic", "paper", "plastic", "recyclable", "non-recyclable"
+        "battery", "biological", "cardboard", "clothes", "glass",
+        "metal", "paper", "plastic", "shoes", "trash"
     ])
     backbone: str = "MobileNetV2"
     weights: str = "imagenet"
@@ -114,22 +115,28 @@ frontend_config = FrontendConfig()
 
 # Class color mapping for UI
 CLASS_COLORS: Dict[str, str] = {
+    "battery": "#FF5722",
+    "biological": "#4CAF50",
+    "cardboard": "#8D6E63",
+    "clothes": "#9C27B0",
     "glass": "#00BCD4",
     "metal": "#9E9E9E",
-    "organic": "#4CAF50",
     "paper": "#FF9800",
     "plastic": "#F44336",
-    "recyclable": "#2196F3",
-    "non-recyclable": "#795548"
+    "shoes": "#3F51B5",
+    "trash": "#795548"
 }
 
 # Disposal guidelines
 DISPOSAL_GUIDELINES: Dict[str, str] = {
+    "battery": "🔋 Take to a battery recycling drop-off point. Never throw in regular trash!",
+    "biological": "🌱 Compost bin or organic waste container. Great for composting!",
+    "cardboard": "♻️ Flatten and place in paper/cardboard recycling bin. Keep dry.",
+    "clothes": "👕 Donate if wearable, or take to a textile recycling bin.",
     "glass": "♻️ Rinse and place in glass recycling bin. Remove caps and lids.",
     "metal": "♻️ Rinse cans, crush if possible, place in metal recycling bin.",
-    "organic": "🌱 Compost bin or organic waste container. Great for composting!",
-    "paper": "♻️ Keep dry, flatten cardboard, place in paper recycling bin.",
+    "paper": "♻️ Keep dry, flatten, and place in paper recycling bin.",
     "plastic": "♻️ Check recycling number, rinse, and place in plastic recycling.",
-    "recyclable": "♻️ Clean and sort into appropriate recycling category.",
-    "non-recyclable": "🗑️ General waste bin. Consider if items can be reused first."
+    "shoes": "👟 Donate if wearable, or take to a textile/shoe recycling point.",
+    "trash": "🗑️ General waste bin. Consider if items can be reused or recycled first."
 }

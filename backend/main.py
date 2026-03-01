@@ -44,7 +44,7 @@ class Settings:
     API_KEY: str = os.getenv("API_KEY", "waste-classifier-api-key-2024")
     MAX_FILE_SIZE: int = 10 * 1024 * 1024  # 10MB
     ALLOWED_EXTENSIONS: List[str] = [".jpg", ".jpeg", ".png", ".webp"]
-    CLASSES: List[str] = ["glass", "metal", "organic", "paper", "plastic", "recyclable", "non-recyclable"]
+    CLASSES: List[str] = ["battery", "biological", "cardboard", "clothes", "glass", "metal", "paper", "plastic", "shoes", "trash"]
     IMG_SIZE: tuple = (224, 224)
 
 
@@ -106,13 +106,16 @@ class Base64ImageRequest(BaseModel):
 
 # Disposal guidelines
 DISPOSAL_GUIDELINES = {
+    "battery": "🔋 Take to a battery recycling drop-off point. Never throw in regular trash!",
+    "biological": "🌱 Compost bin or organic waste container. Great for composting!",
+    "cardboard": "♻️ Flatten and place in paper/cardboard recycling bin. Keep dry.",
+    "clothes": "👕 Donate if wearable, or take to a textile recycling bin.",
     "glass": "♻️ Rinse and place in glass recycling bin. Remove caps and lids.",
     "metal": "♻️ Rinse cans, crush if possible, place in metal recycling bin.",
-    "organic": "🌱 Compost bin or organic waste container. Great for composting!",
-    "paper": "♻️ Keep dry, flatten cardboard, place in paper recycling bin.",
+    "paper": "♻️ Keep dry, flatten, and place in paper recycling bin.",
     "plastic": "♻️ Check recycling number, rinse, and place in plastic recycling.",
-    "recyclable": "♻️ Clean and sort into appropriate recycling category.",
-    "non-recyclable": "🗑️ General waste bin. Consider if items can be reused first."
+    "shoes": "👟 Donate if wearable, or take to a textile/shoe recycling point.",
+    "trash": "🗑️ General waste bin. Consider if items can be reused or recycled first."
 }
 
 # Global model variable

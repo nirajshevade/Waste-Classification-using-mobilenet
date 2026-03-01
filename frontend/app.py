@@ -1,6 +1,7 @@
 """
 Streamlit Frontend for Waste Classification
 Real-time waste classification with webcam and file upload support
+Supports: API backend, local TFLite model, or local Keras model
 """
 import streamlit as st
 import numpy as np
@@ -99,26 +100,38 @@ st.markdown("""
 API_URL = os.getenv("API_URL", "http://localhost:8000")
 API_KEY = os.getenv("API_KEY", "waste-classifier-api-key-2024")
 
-CLASSES = ["glass", "metal", "organic", "paper", "plastic", "recyclable", "non-recyclable"]
+# Model paths (relative to project root)
+PROJECT_ROOT = Path(__file__).parent.parent
+MODEL_DIR = PROJECT_ROOT / "models"
+TFLITE_MODEL_PATH = MODEL_DIR / "waste_classifier_fp16.tflite"
+TFLITE_DYNAMIC_PATH = MODEL_DIR / "waste_classifier_dynamic.tflite"
+KERAS_MODEL_PATH = MODEL_DIR / "best_model.keras"
+
+CLASSES = ["battery", "biological", "cardboard", "clothes", "glass", "metal", "paper", "plastic", "shoes", "trash"]
 CLASS_COLORS = {
-    "glass": "#00BCD4", "metal": "#9E9E9E", "organic": "#4CAF50",
-    "paper": "#FF9800", "plastic": "#F44336", "recyclable": "#2196F3",
-    "non-recyclable": "#795548"
+    "battery": "#FF5722", "biological": "#4CAF50", "cardboard": "#8D6E63",
+    "clothes": "#9C27B0", "glass": "#00BCD4", "metal": "#9E9E9E",
+    "paper": "#FF9800", "plastic": "#F44336", "shoes": "#3F51B5",
+    "trash": "#795548"
 }
 CLASS_EMOJIS = {
-    "glass": "🍾", "metal": "🥫", "organic": "🌱",
-    "paper": "📄", "plastic": "🥤", "recyclable": "♻️",
-    "non-recyclable": "🗑️"
+    "battery": "🔋", "biological": "🌱", "cardboard": "📦",
+    "clothes": "👕", "glass": "🍾", "metal": "🥫",
+    "paper": "📄", "plastic": "🥤", "shoes": "👟",
+    "trash": "🗑️"
 }
 
 DISPOSAL_GUIDELINES = {
+    "battery": "🔋 Take to a battery recycling drop-off point. Never throw in regular trash!",
+    "biological": "🌱 Compost bin or organic waste container. Great for composting!",
+    "cardboard": "♻️ Flatten and place in paper/cardboard recycling bin. Keep dry.",
+    "clothes": "👕 Donate if wearable, or take to a textile recycling bin.",
     "glass": "♻️ Rinse and place in glass recycling bin. Remove caps and lids.",
     "metal": "♻️ Rinse cans, crush if possible, place in metal recycling bin.",
-    "organic": "🌱 Compost bin or organic waste container. Great for composting!",
-    "paper": "♻️ Keep dry, flatten cardboard, place in paper recycling bin.",
+    "paper": "♻️ Keep dry, flatten, and place in paper recycling bin.",
     "plastic": "♻️ Check recycling number, rinse, and place in plastic recycling.",
-    "recyclable": "♻️ Clean and sort into appropriate recycling category.",
-    "non-recyclable": "🗑️ General waste bin. Consider if items can be reused first."
+    "shoes": "👟 Donate if wearable, or take to a textile/shoe recycling point.",
+    "trash": "🗑️ General waste bin. Consider if items can be reused or recycled first."
 }
 
 
@@ -163,12 +176,19 @@ def classify_image_api(image: Image.Image) -> dict:
 
 
 def classify_local_demo(image: Image.Image) -> dict:
-    """Local classification fallback (demo mode)"""
+    """Local classification using TFLite or Keras model, with random fallback"""
+    
+    # Try loading model (cached)
+    model, model_type = load_local_model()
+    
+    if model is not None:
+        return _run_local_inference(model, model_type, image)
+    
+    # Final fallback: random demo mode
     import random
     pred_class = random.choice(CLASSES)
     confidence = random.uniform(0.6, 0.99)
     
-    # Generate realistic predictions
     predictions = {}
     remaining = 1.0 - confidence
     for c in CLASSES:
@@ -186,8 +206,102 @@ def classify_local_demo(image: Image.Image) -> dict:
         "predictions": predictions,
         "inference_time_ms": random.uniform(10, 50),
         "disposal_guideline": DISPOSAL_GUIDELINES[pred_class],
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.utcnow().isoformat(),
+        "mode": "demo"
     }
+
+
+@st.cache_resource
+def load_local_model():
+    """Load a local model (TFLite preferred, then Keras). Cached across reruns."""
+    
+    # Try TFLite models first (lightweight, fast)
+    for tflite_path in [TFLITE_MODEL_PATH, TFLITE_DYNAMIC_PATH]:
+        if tflite_path.exists():
+            try:
+                # Try tflite-runtime first (lightweight), fallback to full tensorflow
+                try:
+                    from tflite_runtime.interpreter import Interpreter
+                    interpreter = Interpreter(model_path=str(tflite_path))
+                except ImportError:
+                    import tensorflow as tf
+                    interpreter = tf.lite.Interpreter(model_path=str(tflite_path))
+                interpreter.allocate_tensors()
+                return interpreter, "tflite"
+            except Exception as e:
+                st.warning(f"Failed to load TFLite model: {e}")
+    
+    # Try Keras model
+    if KERAS_MODEL_PATH.exists():
+        try:
+            import tensorflow as tf
+            model = tf.keras.models.load_model(str(KERAS_MODEL_PATH))
+            return model, "keras"
+        except Exception as e:
+            st.warning(f"Failed to load Keras model: {e}")
+    
+    return None, None
+
+
+def _preprocess_image(image: Image.Image) -> np.ndarray:
+    """Preprocess image for model input (224x224, normalized)"""
+    img = image.convert("RGB").resize((224, 224), Image.LANCZOS)
+    img_array = np.array(img, dtype=np.float32) / 255.0
+    return np.expand_dims(img_array, axis=0)
+
+
+def _run_local_inference(model, model_type: str, image: Image.Image) -> dict:
+    """Run inference using a local TFLite or Keras model"""
+    import random
+    
+    start_time = time.time()
+    img_input = _preprocess_image(image)
+    
+    try:
+        if model_type == "tflite":
+            input_details = model.get_input_details()
+            output_details = model.get_output_details()
+            
+            # Ensure input dtype matches model expectation
+            input_dtype = input_details[0]['dtype']
+            img_input = img_input.astype(input_dtype)
+            
+            model.set_tensor(input_details[0]['index'], img_input)
+            model.invoke()
+            output = model.get_tensor(output_details[0]['index'])[0]
+        else:  # keras
+            output = model.predict(img_input, verbose=0)[0]
+        
+        inference_time = (time.time() - start_time) * 1000
+        
+        # Map predictions to class names
+        predictions = {}
+        for i, cls in enumerate(CLASSES):
+            if i < len(output):
+                predictions[cls] = float(output[i])
+            else:
+                predictions[cls] = 0.0
+        
+        # Normalize predictions to sum to 1
+        total = sum(predictions.values())
+        if total > 0:
+            predictions = {k: v / total for k, v in predictions.items()}
+        
+        pred_class = max(predictions, key=predictions.get)
+        confidence = predictions[pred_class]
+        
+        return {
+            "request_id": f"local_{random.randint(1000, 9999)}",
+            "top_prediction": pred_class,
+            "confidence": confidence,
+            "predictions": predictions,
+            "inference_time_ms": inference_time,
+            "disposal_guideline": DISPOSAL_GUIDELINES.get(pred_class, "🗑️ Check local guidelines."),
+            "timestamp": datetime.utcnow().isoformat(),
+            "mode": "local_model"
+        }
+    except Exception as e:
+        return {"error": f"Model inference failed: {str(e)}"}
 
 
 def display_prediction(result: dict, image: Image.Image):
@@ -200,9 +314,15 @@ def display_prediction(result: dict, image: Image.Image):
     with col2:
         # Check for errors
         if "error" in result:
-            st.warning(f"⚠️ {result['error']}")
-            st.info("🔄 Using demo mode for prediction...")
+            st.info("🔄 API unavailable — using local inference...")
             result = classify_local_demo(image)
+        
+        # Show inference mode badge
+        mode = result.get("mode", "api")
+        if mode == "demo":
+            st.caption("⚡ Demo mode — train & add a model for real predictions")
+        elif mode == "local_model":
+            st.caption("🧠 Running on local model")
         
         pred_class = result.get("top_prediction", "unknown")
         confidence = result.get("confidence", 0)
@@ -269,19 +389,27 @@ def main():
         
         st.divider()
         
-        # API Status
+        # API Status & Inference Mode
         st.header("🔌 API Status")
+        api_available = False
         try:
-            response = requests.get(f"{API_URL}/health", timeout=5)
+            response = requests.get(f"{API_URL}/health", timeout=3)
             if response.status_code == 200:
                 health = response.json()
                 st.success("✅ Connected")
                 st.caption(f"Uptime: {health['uptime_seconds']:.0f}s")
+                api_available = True
             else:
                 st.error("❌ API Error")
         except:
-            st.warning("⚠️ API Offline")
-            st.caption("Using demo mode")
+            # Check for local model
+            model, model_type = load_local_model()
+            if model is not None:
+                st.info(f"🧠 Using local {model_type.upper()} model")
+                st.caption("Running predictions locally")
+            else:
+                st.warning("⚠️ Demo mode")
+                st.caption("No API or model available")
         
         st.divider()
         
