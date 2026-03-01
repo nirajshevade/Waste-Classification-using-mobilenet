@@ -109,6 +109,8 @@ models/*.tflite
 models/*.pb
 models/*/
 !models/.gitkeep
+!models/waste_classifier_fp16.tflite
+!models/best_model.keras
 
 # Data (large files)
 data/raw/*/
