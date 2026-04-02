@@ -1,4 +1,4 @@
-# 🗑️ Waste Classification AI
+#  Waste Classification AI
 
 <div align="center">
 
@@ -16,11 +16,11 @@
 
 ---
 
-## 🌟 Overview
+##  Overview
 
 A comprehensive AI-powered waste classification system designed for smart city and sustainability applications. The system captures live camera input or uploaded images, performs real-time preprocessing, and classifies waste into 10 categories with confidence scores.
 
-### 🎯 Waste Categories
+###  Waste Categories
 
 | Category | Emoji | Description |
 |----------|-------|-------------|
@@ -37,16 +37,16 @@ A comprehensive AI-powered waste classification system designed for smart city a
 
 ---
 
-## ✨ Features
+##  Features
 
-### 🤖 Machine Learning
+###  Machine Learning
 - **MobileNetV2 Transfer Learning** - Lightweight yet powerful CNN architecture
 - **Data Augmentation** - Rotation, flipping, brightness, contrast adjustments
 - **Class Imbalance Handling** - Class weights and oversampling techniques
 - **Model Optimization** - Pruning and quantization for fast inference
 - **Real-time Inference** - <100ms latency with TFLite optimization
 
-### 🔧 Backend (FastAPI)
+###  Backend (FastAPI)
 - RESTful API with OpenAPI documentation
 - Image upload and base64 encoding support
 - API key authentication
@@ -54,7 +54,7 @@ A comprehensive AI-powered waste classification system designed for smart city a
 - CORS middleware for cross-origin requests
 - Health checks and model versioning
 
-### 🎨 Frontend (Streamlit)
+###  Frontend (Streamlit)
 - Modern, responsive UI with custom CSS
 - Live camera capture support
 - File upload for images
@@ -62,7 +62,7 @@ A comprehensive AI-powered waste classification system designed for smart city a
 - Disposal guidelines for each category
 - Session history tracking
 
-### 📊 MLOps & Monitoring
+###  MLOps & Monitoring
 - Structured logging with Python logging
 - Performance metrics tracking
 - Model versioning system
@@ -71,41 +71,41 @@ A comprehensive AI-powered waste classification system designed for smart city a
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 Waste-Classification/
-├── 📂 backend/
+├──  backend/
 │   ├── __init__.py
 │   └── main.py                 # FastAPI REST API server
-├── 📂 frontend/
+├──  frontend/
 │   └── app.py                  # Streamlit web application
-├── 📂 config/
+├──  config/
 │   ├── __init__.py
 │   └── settings.py             # Configuration management
-├── 📂 utils/
+├──  utils/
 │   ├── __init__.py
 │   ├── preprocessing.py        # Image preprocessing pipelines
 │   ├── logging_utils.py        # Logging & monitoring utilities
 │   └── dataset.py              # Dataset management
-├── 📂 notebooks/
+├──  notebooks/
 │   └── waste_classification_training.ipynb  # ML training pipeline
-├── 📂 models/                  # Trained models (generated)
-├── 📂 logs/                    # Application logs
-├── 📂 data/
+├──  models/                  # Trained models (generated)
+├──  logs/                    # Application logs
+├──  data/
 │   ├── raw/                    # Raw training data
 │   └── processed/              # Processed data
-├── 📄 requirements.txt         # Python dependencies
-├── 📄 .env.template            # Environment variables template
-├── 📄 .gitignore
-├── 📄 run_backend.bat          # Backend launcher (Windows)
-├── 📄 run_frontend.bat         # Frontend launcher (Windows)
-└── 📄 run_all.bat              # Full system launcher (Windows)
+├──  requirements.txt         # Python dependencies
+├──  .env.template            # Environment variables template
+├──  .gitignore
+├──  run_backend.bat          # Backend launcher (Windows)
+├──  run_frontend.bat         # Frontend launcher (Windows)
+└──  run_all.bat              # Full system launcher (Windows)
 ```
 
 ---
 
-## 🚀 Installation
+##  Installation
 
 ### Prerequisites
 - Python 3.9 or higher
@@ -144,7 +144,7 @@ cp .env.template .env
 
 ---
 
-## 💻 Usage
+##  Usage
 
 ### Option 1: Run Complete System (Recommended)
 ```bash
@@ -187,7 +187,7 @@ streamlit run frontend/app.py --server.port 8501
 
 ---
 
-## 📓 Training the Model
+##  Training the Model
 
 1. **Prepare Dataset**: Place your waste images in `data/raw/` organized by category:
    ```
@@ -213,7 +213,7 @@ streamlit run frontend/app.py --server.port 8501
 
 ---
 
-## 🔌 API Endpoints
+##  API Endpoints
 
 ### Health Check
 ```http
@@ -267,13 +267,13 @@ X-API-Key: your-api-key
   "confidence": 0.85,
   "inference_time_ms": 45.2,
   "timestamp": "2024-01-15T10:30:00Z",
-  "disposal_guideline": "🌱 Compost bin or organic waste container."
+  "disposal_guideline": " Compost bin or organic waste container."
 }
 ```
 
 ---
 
-## 🧠 Model Architecture
+##  Model Architecture
 
 ### Base Model: MobileNetV2
 - Pre-trained on ImageNet (1.4M+ images)
@@ -305,7 +305,7 @@ Dense(10, Softmax) → Output Classes
 
 ---
 
-## 📈 Performance Metrics
+##  Performance Metrics
 
 | Metric | Value |
 |--------|-------|
@@ -319,7 +319,7 @@ Dense(10, Softmax) → Output Classes
 
 ---
 
-## 🛠️ Configuration
+##  Configuration
 
 ### Environment Variables (.env)
 ```bash
@@ -342,7 +342,7 @@ LOG_LEVEL=INFO
 
 ---
 
-## 🤝 Contributing
+##  Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -352,13 +352,13 @@ LOG_LEVEL=INFO
 
 ---
 
-## 📄 License
+##  License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 - [TensorFlow](https://tensorflow.org/) - ML framework
 - [FastAPI](https://fastapi.tiangolo.com/) - Modern web framework
@@ -369,7 +369,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <div align="center">
 
-**🌍 Help save the planet by sorting waste correctly!**
+** Help save the planet by sorting waste correctly!**
 
 Made with ❤️ for a sustainable future
 
